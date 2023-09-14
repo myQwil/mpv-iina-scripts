@@ -1,21 +1,23 @@
 -- requires subliminal, version 1.0 or newer
 -- default keybinding: b
 
+local function msg(s, level)
+    mp.msg[level or "info"](s)
+    mp.osd_message(s)
+end
+
 -- download the subtitle
 local function load_sub_fn(force)
     local subl = "/usr/local/bin/subliminal" -- use 'which subliminal' to find the path
-    mp.msg.info("Searching subtitle")
-    mp.osd_message("Searching subtitle")
+    msg("Searching subtitle")
 
     force = force and "-f" or ""
     local args = {subl, "download", "-s", force, "-l", "en", mp.get_property("path")}
     if mp.command_native({ name = "subprocess", args = args }).status == 0 then
         mp.commandv("rescan_external_files", "reselect")
-        mp.msg.info("Subtitle download succeeded")
-        mp.osd_message("Subtitle download succeeded")
+        msg("Subtitle download succeeded")
     else
-        mp.msg.warn("Subtitle download failed")
-        mp.osd_message("Subtitle download failed")
+        msg("Subtitle download failed", "warn")
     end
 end
 
