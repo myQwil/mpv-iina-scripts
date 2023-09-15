@@ -11,9 +11,11 @@ local o = {
 	auto = 10, -- Initial delay before auto-download. A negative value disables it.
 	addic7ed_username = '', legendastv_username = '', opensubtitles_username = '',
 	addic7ed_password = '', legendastv_password = '', opensubtitles_password = '',
-	omdb_api = ''
+	omdb_api = '',
+	lang = 'en'
 }
 (require 'mp.options').read_options(o)
+local ext = (o.single and '' or ('.'..o.lang))..'.srt'
 o.single = o.single and '-s' or ''
 
 -- setup constant args
@@ -27,7 +29,7 @@ end
 if o.omdb_api ~= '' then
 	table.append(args, {'--omdb', o.omdb_api})
 end
-table.append(args, { 'download', o.single, '-l', 'en', '', '' })
+table.append(args, { 'download', o.single, '-l', o.lang, '' })
 
 
 ---@param s string
