@@ -3,7 +3,6 @@ function table.append(t1, t2)
 end
 
 -- requires subliminal, version 1.0 or newer
--- default keybinding: b
 local o = {
 	subliminal = '/usr/bin/subliminal', -- path to subliminal
 	single = false, -- Save subtitle without language code in the file name.
@@ -34,8 +33,7 @@ local function msg(s, level)
 	mp.osd_message(s)
 end
 
--- download the subtitle
-local function load_sub_fn(force)
+local function sub_dl(force)
 	msg('Searching subtitle')
 	args[#args - 1] = force and '-f' or ''
 	args[#args] = mp.get_property('path')
@@ -47,7 +45,7 @@ local function load_sub_fn(force)
 	end
 end
 
-mp.add_key_binding('b', 'auto_load_subs', function() load_sub_fn(true) end)
 if o.auto >= 0 then -- auto search and download if not present, the way god intended :P
-	mp.register_event('file-loaded', function() mp.add_timeout(o.auto, load_sub_fn) end)
+	mp.register_event('file-loaded', function() mp.add_timeout(o.auto, sub_dl) end)
 end
+mp.register_script_message('sub_dl', function() sub_dl(true) end)
