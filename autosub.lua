@@ -1,3 +1,5 @@
+---@param t1 table
+---@param t2 table
 function table.append(t1, t2)
 	for _,v in next,t2 do table.insert(t1, v) end
 end
@@ -28,11 +30,14 @@ end
 table.append(args, { 'download', o.single, '-l', 'en', '', '' })
 
 
+---@param s string
+---@param level? string
 local function msg(s, level)
 	mp.msg[level or 'info'](s)
 	mp.osd_message(s)
 end
 
+---@param force? boolean
 local function sub_dl(force)
 	msg('Searching subtitle')
 	args[#args - 1] = force and '-f' or ''
