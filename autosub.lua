@@ -39,14 +39,62 @@ local function msg(s, level)
 	mp.osd_message(s)
 end
 
+---@param s string
+---@return string
+local function srt(s)
+	local dot = s:find('%.[^.]*$')
+	return (dot and s:sub(1, dot - 1) or s)..ext
+end
+
+---@param s string
+---@return string
+local function guess(s)
+	local season, episode, title = s:match('(%d+)[xeE%.](%d+) %- (.+)')
+	local levels = {} ---@type string[]
+	local file = io.popen('realpath "'..s..'"')
+	if file then
+		local path = file:read('*a'):gsub('\n', '')
+		for lvl in path:gmatch('[^/\\]+') do
+			table.insert(levels, lvl)
+		end
+		file:close()
+	else
+		return s
+	end
+	local show = ''
+	for i = #levels-1, 1, -1 do
+		if not levels[i]:lower():match('^season %d') then
+			show = levels[i]
+			break
+		end
+	end
+	s = string.format('%s season %d episode %d - %s',
+		show, tonumber(season), tonumber(episode), title)
+	print(s)
+	return s
+end
+
 ---@param force? boolean
 local function sub_dl(force)
+	local path = mp.get_property('path')
+	if not force then -- stop if .srt already exists
+		local file = io.open(srt(path), 'r')
+		if file then
+			io.close(file)
+			return
+		end
+	end
+
 	msg('Searching subtitle')
-	args[#args - 1] = force and '-f' or ''
-	args[#args] = mp.get_property('path')
+	args[#args] = guess(path)
 	if mp.command_native({ name = 'subprocess', args = args }).status == 0 then
-		mp.commandv('rescan_external_files', 'reselect')
 		msg('Subtitle download succeeded')
+		local ok, message = os.rename(srt(args[#args]), srt(path))
+		if ok then
+			mp.commandv('rescan_external_files', 'reselect')
+		else
+			print(message)
+		end
 	else
 		msg('Subtitle download failed', 'warn')
 	end
