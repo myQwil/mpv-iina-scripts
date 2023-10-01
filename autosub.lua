@@ -9,10 +9,11 @@ local o = {
 	subliminal = '/usr/bin/subliminal', -- path to subliminal
 	single = false, -- Save subtitle without language code in the file name.
 	auto = 10, -- Initial delay before auto-download. A negative value disables it.
+	lang = 'en',
+	pattern = '(%d+)[xeE%.](%d+) %- (.+)',
 	addic7ed_username = '', legendastv_username = '', opensubtitles_username = '',
 	addic7ed_password = '', legendastv_password = '', opensubtitles_password = '',
-	omdb_api = '',
-	lang = 'en'
+	omdb_api = ''
 }
 (require 'mp.options').read_options(o)
 local ext = (o.single and '' or ('.'..o.lang))..'.srt'
@@ -36,7 +37,7 @@ table.append(args, { 'download', o.single, '-l', o.lang, '' })
 ---@param level? string
 local function msg(s, level)
 	mp.msg[level or 'info'](s)
-	mp.osd_message(s)
+	mp.osd_message(s, 2)
 end
 
 ---@param s string
@@ -49,7 +50,7 @@ end
 ---@param s string
 ---@return string
 local function guess(s)
-	local season, episode, title = s:match('(%d+)[xeE%.](%d+) %- (.+)')
+	local season, episode, title = s:match(o.pattern)
 	local levels = {} ---@type string[]
 	local file = io.popen('realpath "'..s..'"')
 	if file then
