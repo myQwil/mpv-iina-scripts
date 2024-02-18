@@ -10,7 +10,7 @@ local o = {
 	single = false, -- Save subtitle without language code in the file name.
 	auto = 10, -- Initial delay before auto-download. A negative value disables it.
 	lang = 'en',
-	pattern = '(%d+)[xeE%.](%d+) %- (.+)',
+	pattern = '(%d+)[xeE%.](%d+) %- (.+)', -- "S#E# - title" or "#x# - title"
 	addic7ed_username = '', legendastv_username = '', opensubtitles_username = '',
 	addic7ed_password = '', legendastv_password = '', opensubtitles_password = '',
 	omdb_api = ''
@@ -69,8 +69,12 @@ local function guess(s)
 			break
 		end
 	end
-	s = string.format('%s season %d episode %d - %s',
-		show, tonumber(season), tonumber(episode), title)
+	if not (season and episode) then
+		s = show
+	else
+		s = string.format('%s season %d episode %d - %s',
+			show, tonumber(season), tonumber(episode), title)
+	end
 	print(s)
 	return s
 end
